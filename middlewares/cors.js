@@ -1,5 +1,8 @@
 const allowedCors = [
   'http://localhost:3000',
+  'http://kudenikovns.diplom.nomoredomains.sbs',
+  'https://kudenikovns.diplom.nomoredomains.sbs',
+  'http://api.kudenikovns.diplom.nomoredomains.sbs',
 ];
 
 const cors = (req, res, next) => {
