@@ -11,13 +11,13 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 const router = require('./routes/index');
 
 /* PORT для сервера */
-const { PORT = 3000 } = process.env;
+const { PORT = 3000, ADRESBD = 'mongodb://localhost:27017/moviesdb' } = process.env;
 
 /* Приложение express */
 const app = express();
 
 /* Подключение БД */
-mongoose.connect('mongodb://localhost:27017/moviesdb');
+mongoose.connect(ADRESBD);
 
 /* Добавление обработчиков */
 app.use(cookieParser());
