@@ -3,6 +3,7 @@ const allowedCors = [
   'http://kudenikovns.diplom.nomoredomains.sbs',
   'https://kudenikovns.diplom.nomoredomains.sbs',
   'http://api.kudenikovns.diplom.nomoredomains.sbs',
+  'https://api.kudenikovns.diplom.nomoredomains.sbs',
 ];
 
 const cors = (req, res, next) => {
