@@ -1,13 +1,12 @@
-const numbersErrors = require('../utils/numbersErrors');
-
 const errorsHandler = (err, req, res, next) => {
-  const statusCode = err.statusCode || numbersErrors.ERROR_INTERNALSERVER;
+  const { statusCode = 500, message } = err;
 
-  const message = statusCode === numbersErrors.ERROR_INTERNALSERVER
-    ? 'На сервере что-то произашло'
-    : err.message;
-  res.status(statusCode).send({ message });
+  res.status(statusCode).send({
+    message: statusCode === 500 ? 'Ошибка сервера' : message,
+  });
   next();
 };
 
-module.exports = errorsHandler;
+module.exports = {
+  errorsHandler,
+};

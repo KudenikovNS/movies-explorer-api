@@ -1,71 +1,68 @@
-/* Подключение компонентов */
 const mongoose = require('mongoose');
-const { isURL } = require('validator');
+const validator = require('validator');
 
-/* Схема для фильмов */
 const movieSchema = new mongoose.Schema({
-  /* Схема для страны создания фильма */
   country: {
     type: String,
     required: true,
   },
-  /* Схема для режиссера фильма */
-  director: {
+  director: { // режиссёр фильма
     type: String,
     required: true,
   },
-  /* Схема для длительности фильма */
-  duration: {
+  duration: { // длительность фильма
     type: Number,
     required: true,
   },
-  /* Схема для года выпуска фильма */
-  year: {
+  year: { // год выпуска фильма
     type: String,
     required: true,
   },
-  /* Схема для описания фильма */
   description: {
     type: String,
     required: true,
   },
-  /* Схема для постер к фильму */
-  image: {
+  image: { // ссылка на постер к фильму
     type: String,
-    validate: isURL,
-  },
-  /* Схема для трейлера к фильму */
-  trailerLink: {
-    type: String,
-    validate: isURL,
-  },
-  /* Схема для миниатюрного изображения постера к фильму */
-  thumbnail: {
-    type: String,
-    validate: isURL,
-  },
-  /* Схема для _id пользователя, который сохранил фильм */
-  owner: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'user',
     required: true,
+    validate: {
+      validator: (v) => validator.isURL(v),
+      message: 'Введена некорректная ссылка. Пожалуйста, укажите другую ссылку',
+    },
   },
-  /* Схема для id фильма, который содержится в ответе сервиса MoviesExplorer */
-  movieId: {
+  trailerLink: { // ссылка на трейлер фильма
+    type: String,
+    required: true,
+    validate: {
+      validator: (v) => validator.isURL(v),
+      message: 'Введена некорректная ссылка. Пожалуйста, укажите другую ссылку',
+    },
+  },
+  thumbnail: { // миниатюрное изображение постера к фильму
+    type: String,
+    required: true,
+    validate: {
+      validator: (v) => validator.isURL(v),
+      message: 'Введена некорректная ссылка. Пожалуйста, укажите другую ссылку',
+    },
+  },
+  owner: { // _id пользователя, который сохранил фильм
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: 'user',
+  },
+  movieId: { //  id фильма, который содержится в ответе сервиса MoviesExplorer
     type: Number,
     required: true,
   },
-  /* Схема для названия фильма на русском языке */
   nameRU: {
     type: String,
     required: true,
   },
-  /* Схема для названия фильма на английском языке */
   nameEN: {
     type: String,
     required: true,
   },
 });
 
-/* Создаем и экспортируем модель фльмов */
 module.exports = mongoose.model('movie', movieSchema);
