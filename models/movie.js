@@ -1,67 +1,68 @@
 const mongoose = require('mongoose');
-const { isURL } = require('validator');
+const isUrl = require('validator/lib/isURL');
 
 const movieSchema = new mongoose.Schema({
   country: {
     type: String,
-    required: true,
+    required: [true, 'Обазательное поле'],
   },
   director: {
     type: String,
-    required: true,
+    required: [true, 'Обазательное поле'],
   },
   duration: {
     type: Number,
-    required: true,
+    required: [true, 'Обазательное поле'],
   },
   year: {
-    type: Number,
-    required: true,
+    type: String,
+    required: [true, 'Обазательное поле'],
   },
   description: {
     type: String,
-    required: true,
+    required: [true, 'Обазательное поле'],
   },
   image: {
     type: String,
-    required: true,
+    required: [true, 'Обазательное поле'],
     validate: {
-      validator: (image) => isURL(image),
-      message: 'Неправильный формат ссылки изображения',
+      validator: (url) => isUrl(url),
+      message: 'Некорректный url',
     },
   },
   trailerLink: {
     type: String,
-    required: true,
+    required: [true, 'Обазательное поле'],
     validate: {
-      validator: (trailerLink) => isURL(trailerLink),
-      message: 'Неправильный формат ссылки трейлера',
+      validator: (url) => isUrl(url),
+      message: 'Некорректный url',
     },
   },
   thumbnail: {
     type: String,
-    required: true,
+    required: [true, 'Обазательное поле'],
     validate: {
-      validator: (thumbnail) => isURL(thumbnail),
-      message: 'Неправильный формат ссылки миниатюрного изображения',
+      validator: (url) => isUrl(url),
+      message: 'Некорректный url',
     },
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
+    required: [true, 'Обазательное поле'],
     ref: 'user',
-    required: true,
   },
   movieId: {
     type: Number,
-    required: true,
+    required: [true, 'Обазательное поле'],
+    unique: true,
   },
   nameRU: {
     type: String,
-    required: true,
+    required: [true, 'Обазательное поле'],
   },
   nameEN: {
     type: String,
-    required: true,
+    required: [true, 'Обазательное поле'],
   },
 });
 

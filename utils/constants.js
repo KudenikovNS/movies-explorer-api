@@ -1,7 +1,9 @@
-const SALT_ROUNDS = 10;
-const DUPLICATE_MONGOOSE_ERROR = 11000;
-
-module.exports = {
-  DUPLICATE_MONGOOSE_ERROR,
-  SALT_ROUNDS,
+const errorMessages = {
+  badRequest: 'Данные не прошли валидацию',
+  conflict: 'Такой email уже занят',
+  forbidden: 'Недостаточно прав',
+  notFound: 'Не найдено',
+  unauthorized: 'Неправильные почта или пароль',
 };
+
+module.exports = errorMessages;

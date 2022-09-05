@@ -1,110 +1,120 @@
-const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-
 const User = require('../models/user');
-const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
-const ConflictError = require('../errors/ConflictError');
 const UnauthorizedError = require('../errors/UnauthorizedError');
-const { DUPLICATE_MONGOOSE_ERROR, SALT_ROUNDS } = require('../utils/constants');
-const { secretKey } = require('../utils/configuration');
+const BadRequestError = require('../errors/BadRequestError');
+const ConflictError = require('../errors/ConflictError');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
-const getCurrentUser = async (req, res, next) => {
-  try {
-    const user = await User.findById(req.user._id);
-    if (user) {
+const getUser = (req, res, next) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError();
+      }
       res.send(user);
-    } else {
-      throw new NotFoundError('Пользователь не найден');
-    }
-  } catch (err) {
-    next(err);
-  }
+    })
+    .catch(next);
 };
 
-const updateUser = async (req, res, next) => {
-  try {
-    const { email, name } = req.body;
-    const user = await User.findByIdAndUpdate(
-      req.user._id,
-      { email, name },
-      {
-        new: true,
-        runValidators: true,
-      },
-    );
-    if (user) {
+const updateUser = (req, res, next) => {
+  const { name, email } = req.body;
+  const id = req.user._id;
+
+  User.findByIdAndUpdate(id, { name, email }, { new: true, runValidators: true })
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError();
+      }
       res.send(user);
-    } else {
-      throw new NotFoundError('Пользователь не найден');
-    }
-  } catch (err) {
-    if (err.name === 'ValidationError') {
-      next(new BadRequestError('Переданы некорректные данные'));
-    } else if (err.name === 'CastError') {
-      next(new BadRequestError('Передан некорректный id пользователя'));
-    } else if (err.code === DUPLICATE_MONGOOSE_ERROR) {
-      next(new ConflictError('Пользователь с таким email уже существует'));
-    } else {
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError());
+        return;
+      }
+
+      if (err.code === 11000) {
+        next(new ConflictError());
+        return;
+      }
+
       next(err);
-    }
-  }
+    });
 };
 
-const signup = async (req, res, next) => {
-  try {
-    if (validator.isEmail(req.body.email)) {
-      const {
-        email, password, name,
-      } = req.body;
-      const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
-      let user = await User.create({
-        email, password: hashedPassword, name,
-      });
-      user = user.toObject();
-      delete user.password;
-      res.status(201).send(user);
-    } else {
-      next(new BadRequestError('Передан некорректный email'));
-    }
-  } catch (err) {
-    if (err.code === DUPLICATE_MONGOOSE_ERROR) {
-      next(new ConflictError('Пользователь с таким email уже существует'));
-    } else if (err.name === 'ValidationError') {
-      next(new BadRequestError('Переданы некорректные данные'));
-    } else {
-      next(err);
-    }
-  }
-};
+const signin = (req, res, next) => {
+  const { email, password } = req.body;
 
-const signin = async (req, res, next) => {
-  try {
-    const { email, password } = req.body;
-    const user = await User.findUserByCredentials(email, password);
-    if (!user) {
-      throw new UnauthorizedError('Неправильные почта или пароль');
-    } else {
-      const token = await jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : secretKey, { expiresIn: '7d' });
+  User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'secret-key', { expiresIn: '7d' });
       res
         .cookie('jwt', token, {
-          maxAge: 3600000 * 24 * 7,
+          maxAge: 360000 * 24 * 7,
           httpOnly: true,
-          sameSite: true,
+          sameSite: 'none',
+          secure: true,
         })
-        .status(200).send({ token });
-    }
-  } catch (err) {
-    next(err);
-  }
+        .send({ token });
+    })
+    .catch(() => {
+      next(new UnauthorizedError());
+    });
+};
+
+const signout = (req, res) => {
+  res.clearCookie('jwt', {
+    httpOnly: true,
+    sameSite: 'none',
+    secure: true,
+  })
+    .send({ message: 'Cookie почищены' })
+    .end();
+};
+
+const createUser = (req, res, next) => {
+  const {
+    name,
+    email,
+    password,
+  } = req.body;
+
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      name,
+      email,
+      password: hash,
+    }))
+    .then((user) => {
+      const { _id } = user;
+      res.status(201).send({
+        _id,
+        name,
+        email,
+      });
+    })
+    .catch((err) => {
+      if (err.code === 11000) {
+        next(new ConflictError());
+        return;
+      }
+
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError());
+        return;
+      }
+
+      next(err);
+    });
 };
 
 module.exports = {
-  getCurrentUser,
+  createUser,
   updateUser,
-  signup,
   signin,
+  signout,
+  getUser,
 };
