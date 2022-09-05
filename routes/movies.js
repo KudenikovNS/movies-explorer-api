@@ -1,41 +1,37 @@
-const router = require('express').Router();
+const express = require('express');
 const { celebrate, Joi } = require('celebrate');
-const validator = require('validator');
 
 const {
-  getMovies,
+  getUsersMovies,
+  postMovie,
   deleteMovie,
-  createMovie,
 } = require('../controllers/movies');
+const { urlValidator } = require('../utils/validation');
 
-const method = (value) => {
-  const result = validator.isURL(value);
-  if (result) {
-    return value;
-  }
-  throw new Error('URL validation err');
-};
+const movieRouter = express.Router();
 
-router.get('/movies', getMovies);
-router.post('/movies', celebrate({
+movieRouter.get('/', getUsersMovies);
+movieRouter.post('/', express.json(), celebrate({
   body: Joi.object().keys({
-    nameRU: Joi.string().required(),
-    nameEN: Joi.string().required(),
     country: Joi.string().required(),
     director: Joi.string().required(),
     duration: Joi.number().required(),
-    year: Joi.string().required(),
+    year: Joi.number().required(),
     description: Joi.string().required(),
-    image: Joi.string().required().custom(method),
-    trailerLink: Joi.string().required().custom(method),
-    thumbnail: Joi.string().required().custom(method),
+    image: Joi.string().required().custom(urlValidator),
+    trailerLink: Joi.string().required().custom(urlValidator),
+    thumbnail: Joi.string().required().custom(urlValidator),
     movieId: Joi.number().required(),
+    nameRU: Joi.string().required(),
+    nameEN: Joi.string().required(),
   }),
-}), createMovie);
-router.delete('/movies/:_id', celebrate({
+}), postMovie);
+movieRouter.delete('/:_id', celebrate({
   params: Joi.object().keys({
-    _id: Joi.string().hex().length(24).required(),
+    _id: Joi.string().length(24).hex().required(),
   }),
 }), deleteMovie);
 
-module.exports = router;
+module.exports = {
+  movieRouter,
+};

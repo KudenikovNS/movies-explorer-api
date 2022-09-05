@@ -1,17 +1,12 @@
 const router = require('express').Router();
-const NotFoundError = require('../errors/NotFoundError');
+
 const auth = require('../middlewares/auth');
+const { userRouter } = require('./users');
+const { movieRouter } = require('./movies');
+const { signRouter } = require('./sign');
 
-const authRouter = require('./authRouter');
-const usersRouter = require('./users');
-const moviesRouter = require('./movies');
-
-router.use('/', authRouter);
-router.use(auth);
-router.use('/', usersRouter);
-router.use('/', moviesRouter);
-router.use((req, res, next) => {
-  next(new NotFoundError('Маршрут не найден'));
-});
+router.use('/', signRouter);
+router.use('/users', auth, userRouter);
+router.use('/movies', auth, movieRouter);
 
 module.exports = router;

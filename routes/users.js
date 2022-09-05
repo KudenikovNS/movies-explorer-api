@@ -1,26 +1,21 @@
-const router = require('express').Router();
+const express = require('express');
 const { celebrate, Joi } = require('celebrate');
-const validator = require('validator');
-
-const method = (value) => {
-  const result = validator.isURL(value);
-  if (result) {
-    return value;
-  }
-  throw new Error('URL');
-};
 
 const {
-  getMe,
-  updateProfile,
+  getCurrentUser,
+  updateUser,
 } = require('../controllers/users');
 
-router.get('/users/me', getMe);
-router.patch('/users/me', celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().min(2).max(30).required(),
-    email: Joi.string().custom(method).required(),
-  }),
-}), updateProfile);
+const userRouter = express.Router();
 
-module.exports = router;
+userRouter.get('/me', getCurrentUser);
+userRouter.patch('/me', express.json(), celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    name: Joi.string().min(2).max(30).required(),
+  }),
+}), updateUser);
+
+module.exports = {
+  userRouter,
+};
