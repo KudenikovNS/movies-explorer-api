@@ -7,26 +7,23 @@ const cors = require('cors');
 const { errors } = require('celebrate');
 const cookieParser = require('cookie-parser');
 
-const { limiter, mongoLink } = require('./utils/configuration');
+const { limiter } = require('./utils/configuration');
 const router = require('./routes/index');
 const errorHandler = require('./middlewares/errorHandler');
 const NotFoundError = require('./errors/NotFoundError');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
-const { PORT = 3000, NODE_ENV, MONGODB_LINK } = process.env;
+const { PORT = 3000, ADRESBD = 'mongodb://localhost:27017/moviesdb' } = process.env;
 const app = express();
 
 app.use(cookieParser());
 
 app.use(cors({
-  origin: 'https://diplomaa.nomoredomains.xyz',
+  origin: 'kudenikovns.diplom.nomoredomains.sbs',
   credentials: true,
 }));
 
-mongoose.connect(NODE_ENV === 'production' ? MONGODB_LINK : mongoLink, {
-  useNewUrlParser: true,
-  useUnifiedTopology: false,
-});
+mongoose.connect(ADRESBD);
 
 app.use(requestLogger);
 

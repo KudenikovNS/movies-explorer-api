@@ -7,11 +7,11 @@ const limiter = rateLimit({
   legacyHeaders: false,
 });
 
-const mongoLink = 'mongodb://localhost:27017/moviesdb';
-const secretKey = 'super-secret-key';
+/* const mongoLink = 'mongodb://localhost:27017/moviesdb';
+const secretKey = 'super-secret-key'; */
 
 module.exports = {
   limiter,
-  mongoLink,
-  secretKey,
+/*   mongoLink,
+  secretKey, */
 };
