@@ -4,8 +4,8 @@ require('dotenv').config();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
-const cors = require('cors');
 const { errors } = require('celebrate');
+const cors = require('./middlewares/cors');
 const limiter = require('./middlewares/limit');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const handleError = require('./middlewares/handleError');
@@ -15,15 +15,7 @@ const { PORT = 3000, DB_CONNECT = 'mongodb://localhost:27017/moviesdb' } = proce
 
 const app = express();
 
-const options = {
-  origin: [
-    'http://localhost:3000',
-    'https://kudenikovns.diplom.nomoredomains.sbs/',
-    'https://kudenikovns.diplom.nomoredomains.sbs/',
-  ],
-  credentials: true,
-};
-app.use('*', cors(options)); // доступность cors
+app.use(cors);
 
 app.use(cookieParser()); // куки
 app.use(bodyParser.json());
