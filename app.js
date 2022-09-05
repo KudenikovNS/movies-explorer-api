@@ -3,10 +3,10 @@ const mongoose = require('mongoose');
 const process = require('process');
 require('dotenv').config();
 const helmet = require('helmet');
-const cors = require('cors');
+
 const { errors } = require('celebrate');
 const cookieParser = require('cookie-parser');
-
+const cors = require('./middlewares/cors');
 const { limiter } = require('./utils/configuration');
 const router = require('./routes/index');
 const errorHandler = require('./middlewares/errorHandler');
@@ -18,10 +18,7 @@ const app = express();
 
 app.use(cookieParser());
 
-app.use(cors({
-  origin: 'kudenikovns.diplom.nomoredomains.sbs',
-  credentials: true,
-}));
+app.use(cors);
 
 mongoose.connect(ADRESBD);
 
