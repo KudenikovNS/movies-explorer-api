@@ -29,12 +29,12 @@ app.use(helmet());
 
 app.use(limiter);
 
-app.use('/', router); // все роуты
+app.use('/', router);
 
-app.use(errorLogger); // логгер запросов с ошибками
+app.use(errorLogger);
 
-app.use(errors()); // ошибки от celebrate
+app.use(errors());
 
-app.use(handleError); // ЦО
+app.use(handleError);
 
 app.listen(PORT);

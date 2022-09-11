@@ -3,7 +3,7 @@ const handleError = (err, req, res, next) => {
 
   res.status(statusCode).send({ message: statusCode === 500 ? 'На сервере произошла ошибка' : message });
 
-  next(); // fix eslinter error
+  next();
 };
 
 module.exports = handleError;
